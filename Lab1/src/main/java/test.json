@@ -1,0 +1,36 @@
+{
+  "status": "PENDING",
+  "tradingTo": "2",
+  "offeredFor": [
+    {
+      "name": "New World",
+      "publisher": "Amazon Games Studio",
+      "system": "PC",
+      "releaseYear" : 2021,
+      "condition": "MINT"
+    },
+    {
+      "name": "BattleField 2042",
+      "publisher": "DICE",
+      "system": "XBOX, PlayStation, PC",
+      "releaseYear": 2021,
+      "condition": "MINT"
+    },
+    {
+      "name": "Rogue Company",
+      "publisher": "Hi Rez Studios",
+      "system": "XBOX, PlayStation, PC",
+      "releaseYear" : 2020,
+      "condition": "MINT"
+    }
+  ],
+  "offeredTo": [
+    {
+      "name": "Cuphead",
+      "publisher": "Studio MDHR",
+      "system": "XBOX, PlayStation, PC",
+      "releaseYear" : 2017,
+      "condition": "MINT"
+    }
+  ]
+}
