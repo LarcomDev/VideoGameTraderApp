@@ -3,6 +3,7 @@ package com.larcomlabs.lab1.Controllers;
 import com.larcomlabs.lab1.Models.User;
 import com.larcomlabs.lab1.Models.VideoGame;
 import com.larcomlabs.lab1.Repos.VideoGameRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -13,14 +14,18 @@ import java.util.List;
 @RequestMapping("/game")
 public class VideoGameRestController
 {
+    @Value("#{environment.SERVICENAME}")
+    private String serviceName;
     private VideoGameRepository repo;
 
-    public VideoGameRestController(VideoGameRepository repo) {
+    public VideoGameRestController(VideoGameRepository repo)
+    {
         this.repo = repo;
     }
 
     @GetMapping
-    public List<VideoGame> getVideoGames() {
+    public List<VideoGame> getVideoGames()
+    {
         return repo.findAll();
     }
 
@@ -34,11 +39,18 @@ public class VideoGameRestController
     public void createGame(@AuthenticationPrincipal User u, @RequestBody VideoGame game){
         game.setOwner(u);
         repo.save(game);
+        System.out.println(printServiceName());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteGame(@PathVariable int id) {
+    public void deleteGame(@PathVariable int id)
+    {
         repo.deleteById(id);
+    }
+
+    public String printServiceName()
+    {
+        return "Game created with service: " + serviceName;
     }
 }

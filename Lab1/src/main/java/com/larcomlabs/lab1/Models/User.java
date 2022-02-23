@@ -1,9 +1,13 @@
 package com.larcomlabs.lab1.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,6 +54,7 @@ public class User implements UserDetails
         return username;
     }
 
+    @JsonIgnore
     public String getPassword()
     {
         return password;
@@ -60,6 +65,7 @@ public class User implements UserDetails
         return games;
     }
 
+    @JsonProperty("password")
     public void setPassword(String password)
     {
         this.password = password;

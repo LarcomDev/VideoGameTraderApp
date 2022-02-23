@@ -5,7 +5,8 @@ spring:
     properties:
       hibernate:
         globally_quoted_identifiers: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
   datasource:
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    url: jdbc:mysql://${HOSTNAME}:3306/Lab1
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
