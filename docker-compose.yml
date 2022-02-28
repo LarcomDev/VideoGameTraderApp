@@ -11,6 +11,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SERVICENAME: API-1
+      RABBIT_HOST: rabbitmq
     depends_on:
       - mysqldb
     ports:
@@ -27,6 +28,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SERVICENAME: API-2
+      RABBIT_HOST: rabbitmq
     depends_on:
       - mysqldb
     ports:
@@ -53,6 +55,27 @@ services:
       MYSQL_DATABASE: Lab1
     ports:
       - '3306:3306'
+    networks:
+      - 'lab2net'
+  emailservice:
+    image: emailservice:1
+    container_name: email_service
+    ports:
+      - '8083:8080'
+    environment:
+      RABBIT_HOST: rabbitmq
+    depends_on:
+      - apiservice1
+      - apiservice2
+      - rabbitmq
+    networks:
+      - 'lab2net'
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    ports:
+      - '5672:5672'
+      - '15672:15672'
     networks:
       - 'lab2net'
 

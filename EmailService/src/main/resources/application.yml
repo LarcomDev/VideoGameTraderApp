@@ -1,0 +1,11 @@
+spring:
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    username: guest
+    password: guest
+    port: 5672
+larcomlabs:
+  rabbitmq:
+    exchange: LLabsExchange
+    queue: EmailQueue
+    routingKey: routing_key1

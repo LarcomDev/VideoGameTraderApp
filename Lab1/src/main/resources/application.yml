@@ -10,3 +10,15 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     url: ${SPRING_DATASOURCE_URL}
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    port: 5672
+    username: guest
+    password: guest
+  main:
+    allow-bean-definition-overriding: true
+larcomlabs:
+  rabbitmq:
+    exchange: LLabsExchange
+    queue: EmailQueue
+    routingKey: routing_key1

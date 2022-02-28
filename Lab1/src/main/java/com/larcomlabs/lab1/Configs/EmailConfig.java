@@ -1,29 +1,56 @@
 package com.larcomlabs.lab1.Configs;
 
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import java.util.Properties;
 
 @Configuration
 public class EmailConfig
 {
+    @Value("${larcomlabs.rabbitmq.queue}")
+    private String queue;
+
+    @Value("${larcomlabs.rabbitmq.exchange}")
+    private String exchange;
+
+    @Value("${larcomlabs.rabbitmq.routingKey}")
+    private String routingKey;
+
     @Bean
-    public JavaMailSender getJavaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
-
-        mailSender.setUsername("larcomlabs@gmail.com");
-        mailSender.setPassword("fxbldhllpkkppuyd");
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-
-        return mailSender;
+    public Queue queue()
+    {
+        return new Queue(queue, false);
     }
+
+    @Bean
+    public DirectExchange exchange()
+    {
+        return new DirectExchange(exchange);
+    }
+
+    @Bean
+    public MessageConverter jsonMessageConverter()
+    {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public Binding binding(Queue queue, DirectExchange exchange)
+    {
+        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    }
+
+    @Bean
+    public AmqpTemplate rabbitTemplate(ConnectionFactory factory)
+    {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(factory);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        return rabbitTemplate;
+    }
+
 }

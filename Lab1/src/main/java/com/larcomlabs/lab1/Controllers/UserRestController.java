@@ -1,15 +1,16 @@
 package com.larcomlabs.lab1.Controllers;
 
+import com.larcomlabs.lab1.EmailSender;
+import com.larcomlabs.lab1.Models.EmailMessage;
 import com.larcomlabs.lab1.Models.User;
 import com.larcomlabs.lab1.Repos.UserRepository;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -18,16 +19,18 @@ public class UserRestController
 {
     private UserRepository repo;
     private PasswordEncoder encoder;
-    private JavaMailSender sender;
+    private EmailSender eSender;
 
-    private UserRestController(UserRepository repo, PasswordEncoder encoder, JavaMailSender sender) {
+    private UserRestController(UserRepository repo, PasswordEncoder encoder, EmailSender eSender)
+    {
         this.repo = repo;
         this.encoder = encoder;
-        this.sender = sender;
+        this.eSender = eSender;
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers()
+    {
         return repo.findAll();
     }
 
@@ -71,15 +74,12 @@ public class UserRestController
     }
 
     //used to send an email to the user whos password has been reset.
-    private void emailPassword(String email, String newPass, String username) {
-        String msgBody = "Hello "+ username +"! \nYour new temporary password is: " + newPass;
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setFrom("larcomlabs@gmail.com");
-        msg.setTo(email);
-        msg.setSubject("Password Reset");
-        msg.setText(msgBody);
+    private void emailPassword(String email, String newPass, String username)
+    {
+        EmailMessage message = new EmailMessage(email, username, newPass);
 
-        sender.send(msg);
+        //queue the email to send in rabbitmq
+        eSender.send(message.toString());
     }
 
     private String generateTemporaryPassword() {
