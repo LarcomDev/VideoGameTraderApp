@@ -5,13 +5,19 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+
 @Configuration
 public class EmailConfig
 {
+    @Autowired
+    AmqpAdmin admin;
+
     @Value("${larcomlabs.rabbitmq.queue}")
     private String queue;
 
@@ -21,16 +27,31 @@ public class EmailConfig
     @Value("${larcomlabs.rabbitmq.routingKey}")
     private String routingKey;
 
+    private Queue emailQueue;
+    private DirectExchange emailExchange;
+    private Binding exchangeBinding;
+
+    @PostConstruct
+    public void createQueue()
+    {
+        this.emailQueue = new Queue(queue, true);
+        this.emailExchange = new DirectExchange(exchange);
+        this.exchangeBinding = BindingBuilder.bind(emailQueue).to(emailExchange).with(routingKey);
+        admin.declareExchange(emailExchange);
+        admin.declareQueue(emailQueue);
+        admin.declareBinding(exchangeBinding);
+    }
+
     @Bean
     public Queue queue()
     {
-        return new Queue(queue, false);
+        return emailQueue;
     }
 
     @Bean
     public DirectExchange exchange()
     {
-        return new DirectExchange(exchange);
+        return emailExchange;
     }
 
     @Bean
@@ -42,7 +63,7 @@ public class EmailConfig
     @Bean
     public Binding binding(Queue queue, DirectExchange exchange)
     {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+        return exchangeBinding;
     }
 
     @Bean

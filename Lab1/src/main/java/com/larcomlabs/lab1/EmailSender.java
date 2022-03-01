@@ -1,5 +1,6 @@
 package com.larcomlabs.lab1;
 
+import com.larcomlabs.lab1.Models.EmailObject;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +20,8 @@ public class EmailSender
     private String routingKey;
 
     @Scheduled
-    public void send(String message)
+    public void send(EmailObject obj)
     {
-        rabbitTemplate.convertAndSend(exchange, routingKey, message);
+        rabbitTemplate.convertAndSend(exchange, routingKey, obj);
     }
 }

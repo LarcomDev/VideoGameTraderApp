@@ -1,12 +1,15 @@
 package com.larcomlabs.lab1.Controllers;
 
 import com.larcomlabs.lab1.EmailSender;
-import com.larcomlabs.lab1.Models.EmailMessage;
+import com.larcomlabs.lab1.Models.EmailObject;
+import com.larcomlabs.lab1.Models.EmailType;
 import com.larcomlabs.lab1.Models.User;
 import com.larcomlabs.lab1.Repos.UserRepository;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +23,8 @@ public class UserRestController
     private UserRepository repo;
     private PasswordEncoder encoder;
     private EmailSender eSender;
+    @Autowired
+    private RabbitTemplate template;
 
     private UserRestController(UserRepository repo, PasswordEncoder encoder, EmailSender eSender)
     {
@@ -60,7 +65,8 @@ public class UserRestController
     }
 
     @GetMapping("/reset")
-    public void resetPassword(@RequestParam String email) {
+    public void resetPassword(@RequestParam String email)
+    {
         //use email to send reset email to the user
         User u = repo.findByEmail(email);
 
@@ -68,18 +74,8 @@ public class UserRestController
         u.setPassword(encoder.encode(newPass));
         //persist the password change
         repo.save(u);
-        System.out.println(newPass);
-
-        emailPassword(u.getEmail(), newPass, u.getUsername());
-    }
-
-    //used to send an email to the user whos password has been reset.
-    private void emailPassword(String email, String newPass, String username)
-    {
-        EmailMessage message = new EmailMessage(email, username, newPass);
-
-        //queue the email to send in rabbitmq
-        eSender.send(message.toString());
+        EmailObject message = new EmailObject(u.getEmail(), newPass, u.getUsername(), EmailType.PASSWORD_RESET);
+        eSender.send(message);
     }
 
     private String generateTemporaryPassword() {

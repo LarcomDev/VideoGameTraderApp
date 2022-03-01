@@ -60,6 +60,8 @@ services:
   emailservice:
     image: emailservice:1
     container_name: email_service
+    build:
+      context: ./EmailService
     ports:
       - '8083:8080'
     environment:
