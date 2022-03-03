@@ -1,15 +1,12 @@
 package com.larcomlabs.emailservice;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.larcomlabs.emailservice.Models.EmailObject;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
-
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 
 @Component
 public class EmailListener
@@ -18,21 +15,17 @@ public class EmailListener
     private JavaMailSender sender;
 
     @RabbitListener(queues = "${larcomlabs.rabbitmq.queue}")
-    public void receiveMessage(Message msg)
+    public void receiveMessage(String msg)
     {
-        System.out.println(msg.getPayload().getClass().getSimpleName());
-        byte[] bytes = (byte[]) msg.getPayload();
-
-        EmailObject obj = null;
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        //deserialize json from string in msg
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            ObjectInput input = new ObjectInputStream(bis);
-            obj = (EmailObject) input.readObject();
-        } catch (Exception e) {
+            EmailObject obj = mapper.readValue(msg, EmailObject.class);
+            System.out.println("Object type: " + obj.getClass().getSimpleName());
+            System.out.println("Contents:" + obj.toString());
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        System.out.println("EmailObject? " + obj.getClass().getSimpleName());
-        System.out.println("Contents: " + obj.toString());
 
 //        String msgBody = getBody(obj);
 //

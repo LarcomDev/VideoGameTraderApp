@@ -74,7 +74,8 @@ public class UserRestController
         u.setPassword(encoder.encode(newPass));
         //persist the password change
         repo.save(u);
-        EmailObject message = new EmailObject(u.getEmail(), newPass, u.getUsername(), EmailType.PASSWORD_RESET);
+        EmailObject message = new EmailObject(u.getEmail(), u.getUsername(), newPass, EmailType.PASSWORD_RESET);
+
         eSender.send(message);
     }
 
